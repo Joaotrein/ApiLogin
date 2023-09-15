@@ -1,31 +1,53 @@
-import { useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Card from "../../componentes/Card/Card";
 
-function Home() {
+function Home(props) {
+    const navigate = useNavigate();
+    const [noticias, setNoticias] = useState([]);
 
-    const navigate = useNavigate()
-
-    useEffect(() =>{
-        const token = localStorage.getItem('token')
-        if(!token){
-            navigate('/')
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/');
         }
-    }, [navigate])
+    }, [navigate]);
 
     const handleLogout = () => {
-        localStorage.removeItem('token')
-        localStorage.removeItem('email')
-        navigate('/')
-    }
+        localStorage.removeItem('token');
+        localStorage.removeItem('email');
+        navigate('/');
+    };
+
+    const pegarNoticias = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/news');
+            setNoticias(response.data); // Define o estado com os dados da resposta
+        } catch (error) {
+            console.error("Erro ao buscar notícias:", error);
+        }
+    };
+
+    useEffect(() => {
+        pegarNoticias();
+    }, []);
 
     return (
         <>
             <button onClick={handleLogout}>Logout</button>
-            home
+            <p>home</p>
 
+
+            {noticias.map((noticia, index) => (
+                <Card
+                    title={noticia.title}
+                    content={noticia.content}
+                    i={index}
+                />
+            ))}
         </>
-    )
-
+    );
 }
 
-export default Home
+export default Home;
